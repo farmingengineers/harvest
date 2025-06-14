@@ -132,7 +132,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.selectedIndex = 0
 			}
 		} else {
-			m.filteredCrops = m.crops
+			m.filteredCrops = nil
 		}
 	} else {
 		m.quantityInput, cmd = m.quantityInput.Update(msg)
@@ -149,15 +149,17 @@ func (m model) View() string {
 	if m.state == "crop" {
 		s.WriteString(m.cropInput.View())
 		s.WriteString("\n\n")
-		s.WriteString("Matches:\n")
-		for i, crop := range m.filteredCrops {
-			if i == m.selectedIndex {
-				s.WriteString("> ")
-			} else {
-				s.WriteString("  ")
+		if len(m.filteredCrops) > 0 {
+			s.WriteString("Matches:\n")
+			for i, crop := range m.filteredCrops {
+				if i == m.selectedIndex {
+					s.WriteString("> ")
+				} else {
+					s.WriteString("  ")
+				}
+				s.WriteString(crop)
+				s.WriteString("\n")
 			}
-			s.WriteString(crop)
-			s.WriteString("\n")
 		}
 	} else {
 		s.WriteString(fmt.Sprintf("Selected crop: %s\n", m.selectedCrop))
