@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/farmingengineers/harvest/cmd/input/filter"
 )
 
 var (
@@ -17,14 +18,14 @@ var (
 )
 
 type model struct {
-	crops          []string
-	filteredCrops  []string
-	cropInput      textinput.Model
-	quantityInput  textinput.Model
-	selectedCrop   string
-	selectedIndex  int
-	state          string // "crop" or "quantity"
-	output         []string
+	crops         []string
+	filteredCrops []string
+	cropInput     textinput.Model
+	quantityInput textinput.Model
+	selectedCrop  string
+	selectedIndex int
+	state         string // "crop" or "quantity"
+	output        []string
 }
 
 func initialModel(crops []string) model {
@@ -118,21 +119,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if m.state == "crop" {
 		m.cropInput, cmd = m.cropInput.Update(msg)
-		if m.cropInput.Value() != "" {
-			m.filteredCrops = make([]string, 0)
-			for _, crop := range m.crops {
-				if strings.Contains(strings.ToLower(crop), strings.ToLower(m.cropInput.Value())) {
-					m.filteredCrops = append(m.filteredCrops, crop)
-					if len(m.filteredCrops) >= 10 {
-						break
-					}
-				}
-			}
-			if m.selectedIndex >= len(m.filteredCrops) {
-				m.selectedIndex = 0
-			}
-		} else {
-			m.filteredCrops = nil
+		query := m.cropInput.Value()
+		m.filteredCrops = filter.Crops(m.crops, query)
+		if m.selectedIndex >= len(m.filteredCrops) {
+			m.selectedIndex = 0
 		}
 	} else {
 		m.quantityInput, cmd = m.quantityInput.Update(msg)
