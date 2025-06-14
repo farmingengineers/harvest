@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+#/ Usage: script/process --crops CROPLIST INPUT
+#/ CROPLIST is first column from harvest spreadsheet.
+#/ INPUT is a typed version of harvest sheet.
+#/ Output is one of these:
+#/   A. List of crops to add.
+#/   B. The values to put into harvest sheet.
+
+def main(input:, crop_list:)
+end
+
+raise "todo"
