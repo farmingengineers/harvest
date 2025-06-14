@@ -123,6 +123,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			for _, crop := range m.crops {
 				if strings.Contains(strings.ToLower(crop), strings.ToLower(m.cropInput.Value())) {
 					m.filteredCrops = append(m.filteredCrops, crop)
+					if len(m.filteredCrops) >= 10 {
+						break
+					}
 				}
 			}
 			if m.selectedIndex >= len(m.filteredCrops) {
