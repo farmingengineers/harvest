@@ -49,5 +49,6 @@ func Crops(crops []string, query string) []string {
 	for i := 0; i < len(scoredCrops) && i < 5; i++ {
 		result = append(result, scoredCrops[i].crop)
 	}
+	sort.Strings(result)
 	return result
 }
