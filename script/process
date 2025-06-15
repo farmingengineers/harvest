@@ -16,7 +16,10 @@ def parse_input_file(input_file)
 end
 
 def parse_crop_list(crop_list_file)
-  File.readlines(crop_list_file).map(&:strip)
+  crops = File.readlines(crop_list_file).map(&:strip)
+  # the harvest sheet has two header rows.
+  crops.shift; crops.shift
+  crops
 end
 
 def main(input:, crop_list:)
@@ -27,7 +30,11 @@ def main(input:, crop_list:)
   unmatched_crops = input_data.keys - crop_list_data
   if unmatched_crops.any?
     # Output A: List of crops to add
-    unmatched_crops.each { |crop| puts crop }
+    $stderr.puts "** These crops aren't in the harvest sheet.",
+      "** Add rows for them, then copy the first column to #{crop_list},",
+      "** then re-run this program.",
+      "",
+      unmatched_crops.map { |crop| "  #{crop}" }
   else
     # Output B: Values aligned with crop list
     crop_list_data.each do |crop|
