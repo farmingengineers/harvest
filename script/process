@@ -43,10 +43,10 @@ def main(input:, crop_list:)
   end
 end
 
-options = {}
+options = {crop_list: "crops.txt"}
 OptionParser.new do |opts|
   opts.banner = "Usage: script/process --crops CROPLIST INPUT"
-  opts.on("--crops CROPLIST", "File containing list of valid crops") do |c|
+  opts.on("--crops CROPLIST", "File containing list of valid crops (default is crops.txt)") do |c|
     options[:crop_list] = c
   end
 end.parse!
