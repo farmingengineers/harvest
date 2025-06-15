@@ -6,7 +6,7 @@ import (
 
 // Crops filters the given list of crops based on the query string.
 // It scores each match using Jaro-Winkler similarity and returns the top 5 matches, sorted alphabetically.
-func Crops(crops []string, query string) []string {
+func Crops(crops []string, query string, limit int) []string {
 	if query == "" {
 		return nil
 	}
@@ -27,8 +27,8 @@ func Crops(crops []string, query string) []string {
 		return scoredCrops[i].crop < scoredCrops[j].crop
 	})
 	// Take the top 5 matches
-	result := make([]string, 0)
-	for i := 0; i < len(scoredCrops) && i < 5; i++ {
+	result := make([]string, 0, limit)
+	for i := 0; i < len(scoredCrops) && i < limit; i++ {
 		result = append(result, scoredCrops[i].crop)
 	}
 	return result

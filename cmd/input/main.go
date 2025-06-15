@@ -23,9 +23,19 @@ type model struct {
 	cropInput     textinput.Model
 	quantityInput textinput.Model
 	selectedCrop  string
-	selectedIndex int
+	selectedIndex int    // -1 is a special value, use 'resolveSelectedIndex()' to get a value that can be used as an index into filteredC
 	state         string // "crop" or "quantity"
 	output        []string
+}
+
+func (m model) resolveSelectedIndex() int {
+	if m.selectedIndex == -1 {
+		if len(m.filteredCrops) > 1 {
+			return 1
+		}
+		return 0
+	}
+	return m.selectedIndex
 }
 
 func initialModel(crops []string) model {
@@ -43,6 +53,7 @@ func initialModel(crops []string) model {
 	return model{
 		crops:         crops,
 		filteredCrops: crops,
+		selectedIndex: -1,
 		cropInput:     ti,
 		quantityInput: qi,
 		state:         "crop",
@@ -82,7 +93,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.String() {
 			case "enter":
 				if len(m.filteredCrops) > 0 {
-					m.selectedCrop = m.filteredCrops[m.selectedIndex]
+					m.selectedCrop = m.filteredCrops[m.resolveSelectedIndex()]
 					m.state = "quantity"
 					m.quantityInput.Focus()
 					m.cropInput.Blur()
@@ -93,12 +104,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.cropInput.Blur()
 				}
 			case "up":
-				if m.selectedIndex > 0 {
-					m.selectedIndex--
+				if si := m.resolveSelectedIndex(); si > 0 {
+					m.selectedIndex = si - 1
 				}
 			case "down":
-				if m.selectedIndex < len(m.filteredCrops)-1 {
-					m.selectedIndex++
+				if si := m.resolveSelectedIndex(); si < len(m.filteredCrops)-1 {
+					m.selectedIndex = si + 1
 				}
 			}
 		} else if m.state == "quantity" {
@@ -112,7 +123,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.quantityInput.Reset()
 					m.cropInput.Reset()
 					m.selectedCrop = ""
-					m.selectedIndex = 0
+					m.selectedIndex = -1
 				}
 			}
 		}
@@ -121,9 +132,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.state == "crop" {
 		m.cropInput, cmd = m.cropInput.Update(msg)
 		query := m.cropInput.Value()
-		m.filteredCrops = filter.Crops(m.crops, query)
+		m.filteredCrops = make([]string, 0, 6)
+		m.filteredCrops = append(m.filteredCrops, query)
+		m.filteredCrops = append(m.filteredCrops, filter.Crops(m.crops, query, 5)...)
 		if m.selectedIndex >= len(m.filteredCrops) {
-			m.selectedIndex = 0
+			m.selectedIndex = -1
 		}
 	} else {
 		m.quantityInput, cmd = m.quantityInput.Update(msg)
@@ -143,7 +156,8 @@ func (m model) View() string {
 		if len(m.filteredCrops) > 0 {
 			s.WriteString("Matches:\n")
 			for i, crop := range m.filteredCrops {
-				if i == m.selectedIndex {
+				si := m.resolveSelectedIndex()
+				if i == si {
 					s.WriteString("> ")
 				} else {
 					s.WriteString("  ")
