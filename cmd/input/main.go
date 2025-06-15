@@ -57,7 +57,6 @@ func initialModel(crops []string) model {
 		cropInput:     ti,
 		quantityInput: qi,
 		state:         "crop",
-		output:        make([]string, 0),
 	}
 }
 
@@ -72,18 +71,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "ctrl+d":
-			if m.state == "quantity" {
-				// Write output to file
-				if *outFile != "" {
-					f, err := os.Create(*outFile)
-					if err != nil {
-						fmt.Printf("Error creating output file: %v\n", err)
-						os.Exit(1)
-					}
-					defer f.Close()
-					for _, line := range m.output {
-						fmt.Fprintln(f, line)
-					}
+			// Write output to file
+			if *outFile != "" {
+				f, err := os.Create(*outFile)
+				if err != nil {
+					fmt.Printf("Error creating output file: %v\n", err)
+					os.Exit(1)
+				}
+				defer f.Close()
+				for _, line := range m.output {
+					fmt.Fprintln(f, line)
 				}
 			}
 			return m, tea.Quit
@@ -116,15 +113,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.String() {
 			case "enter":
 				if m.quantityInput.Value() != "" {
-					m.output = append(m.output, fmt.Sprintf("%s %s", m.selectedCrop, m.quantityInput.Value()))
-					m.state = "crop"
-					m.cropInput.Focus()
-					m.quantityInput.Blur()
-					m.quantityInput.Reset()
-					m.cropInput.Reset()
-					m.selectedCrop = ""
-					m.selectedIndex = -1
+					m.output = append(m.output, fmt.Sprintf("%s | %s", m.selectedCrop, m.quantityInput.Value()))
 				}
+				m.state = "crop"
+				m.cropInput.Focus()
+				m.quantityInput.Blur()
+				m.quantityInput.Reset()
+				m.cropInput.Reset()
+				m.selectedCrop = ""
+				m.selectedIndex = -1
 			}
 		}
 	}
@@ -149,6 +146,10 @@ func (m model) View() string {
 	var s strings.Builder
 
 	s.WriteString("Harvest Input\n\n")
+	for _, line := range m.output {
+		s.WriteString(line + "\n")
+	}
+	s.WriteString("\n-----------------------\n\n")
 
 	if m.state == "crop" {
 		s.WriteString(m.cropInput.View())
