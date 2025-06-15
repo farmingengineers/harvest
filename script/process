@@ -12,7 +12,7 @@ def parse_input_file(input_file)
   File.readlines(input_file).map do |line|
     crop, quantity = line.strip.split('|')
     [crop.strip, quantity.strip]
-  end.to_h
+  end.select { |_, q| q.to_f > 0 }.to_h
 end
 
 def parse_crop_list(crop_list_file)
