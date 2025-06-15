@@ -110,6 +110,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.cropInput.Focus()
 					m.quantityInput.Blur()
 					m.quantityInput.Reset()
+					m.cropInput.Reset()
 					m.selectedCrop = ""
 					m.selectedIndex = 0
 				}
