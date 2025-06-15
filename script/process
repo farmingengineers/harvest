@@ -6,7 +6,52 @@
 #/   A. List of crops to add.
 #/   B. The values to put into harvest sheet.
 
-def main(input:, crop_list:)
+require 'optparse'
+
+def parse_input_file(input_file)
+  File.readlines(input_file).map do |line|
+    crop, quantity = line.strip.split('|')
+    [crop.strip, quantity.strip]
+  end.to_h
 end
 
-raise "todo"
+def parse_crop_list(crop_list_file)
+  File.readlines(crop_list_file).map(&:strip)
+end
+
+def main(input:, crop_list:)
+  input_data = parse_input_file(input)
+  crop_list_data = parse_crop_list(crop_list)
+
+  # Check for unmatched crops
+  unmatched_crops = input_data.keys - crop_list_data
+  if unmatched_crops.any?
+    # Output A: List of crops to add
+    unmatched_crops.each { |crop| puts crop }
+  else
+    # Output B: Values aligned with crop list
+    crop_list_data.each do |crop|
+      puts input_data[crop] || ''
+    end
+  end
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: script/process --crops CROPLIST INPUT"
+  opts.on("--crops CROPLIST", "File containing list of valid crops") do |c|
+    options[:crop_list] = c
+  end
+end.parse!
+
+if ARGV.size != 1
+  puts "Error: Expected exactly one input file"
+  exit 1
+end
+
+if options[:crop_list].nil?
+  puts "Error: --crops option is required"
+  exit 1
+end
+
+main(input: ARGV[0], crop_list: options[:crop_list])
