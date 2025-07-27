@@ -18,14 +18,16 @@ func Crops(crops []string, query string, limit int) []string {
 	queryParts := splitCrop(query)
 	scoredCrops := make([]scoredCrop, 0)
 	for _, crop := range crops {
-		bestScore := 0.0
+		totalScore := 0.0
 		for _, queryWord := range queryParts {
+			bestScore := 0.0
 			for _, cropWord := range splitCrop(crop) {
 				score := jaroWinklerSimilarity(cropWord, queryWord)
 				bestScore = max(score, bestScore)
 			}
+			totalScore += bestScore
 		}
-		scoredCrops = append(scoredCrops, scoredCrop{crop, bestScore})
+		scoredCrops = append(scoredCrops, scoredCrop{crop, totalScore})
 	}
 	// Sort by score (descending) and then alphabetically
 	sort.Slice(scoredCrops, func(i, j int) bool {
