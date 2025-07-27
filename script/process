@@ -28,6 +28,23 @@ def parse_crop_list(crop_list_file)
   crops
 end
 
+def format_crop(crop, quantity)
+  return "" if quantity.nil?
+  unit = crop.split(",").last.strip
+  case unit
+  when "lb"
+    if (quantity - quantity.to_i) < 0.1
+      "%d" % quantity.to_i
+    else
+      "%0.1f" % quantity
+    end
+  when "bouquets", "bulbs", "bunches", "clamshell", "count", "lettuce heads", "pint", "pt"
+    "%d" % quantity.to_i
+  else
+    raise "Unknown unit in #{crop.inspect}"
+  end
+end
+
 def main(input:, crop_list:)
   input_data = parse_input_file(input)
   crop_list_data = parse_crop_list(crop_list)
@@ -44,7 +61,7 @@ def main(input:, crop_list:)
   else
     # Output B: Values aligned with crop list
     crop_list_data.each do |crop|
-      puts input_data[crop] || ''
+      puts format_crop(crop, input_data[crop])
     end
   end
 end
