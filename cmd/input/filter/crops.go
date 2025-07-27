@@ -2,6 +2,7 @@ package filter
 
 import (
 	"sort"
+	"strings"
 )
 
 // Crops filters the given list of crops based on the query string.
@@ -14,10 +15,17 @@ func Crops(crops []string, query string, limit int) []string {
 		crop  string
 		score float64
 	}
+	queryParts := splitCrop(query)
 	scoredCrops := make([]scoredCrop, 0)
 	for _, crop := range crops {
-		score := jaroWinklerSimilarity(crop, query)
-		scoredCrops = append(scoredCrops, scoredCrop{crop, score})
+		bestScore := 0.0
+		for _, queryWord := range queryParts {
+			for _, cropWord := range splitCrop(crop) {
+				score := jaroWinklerSimilarity(cropWord, queryWord)
+				bestScore = max(score, bestScore)
+			}
+		}
+		scoredCrops = append(scoredCrops, scoredCrop{crop, bestScore})
 	}
 	// Sort by score (descending) and then alphabetically
 	sort.Slice(scoredCrops, func(i, j int) bool {
@@ -32,4 +40,31 @@ func Crops(crops []string, query string, limit int) []string {
 		result = append(result, scoredCrops[i].crop)
 	}
 	return result
+}
+
+func splitCrop(crop string) []string {
+	if crop == "" {
+		return nil
+	}
+	res := make([]string, 0, strings.Count(crop, ",")+strings.Count(crop, " ")+1)
+	nextComma := strings.Index(crop, ",")
+	nextSpace := strings.Index(crop, " ")
+	for nextComma != -1 || nextSpace != -1 {
+		if nextComma == -1 || (nextSpace != -1 && nextSpace < nextComma) {
+			res = append(res, crop[:nextSpace])
+			crop = crop[nextSpace+1:]
+		} else {
+			res = append(res, crop[:nextComma])
+			crop = crop[nextComma+1:]
+		}
+		for crop != "" && crop[0] == ' ' {
+			crop = crop[1:]
+		}
+		nextComma = strings.Index(crop, ",")
+		nextSpace = strings.Index(crop, " ")
+	}
+	if crop != "" {
+		res = append(res, crop)
+	}
+	return res
 }
