@@ -9,10 +9,16 @@
 require 'optparse'
 
 def parse_input_file(input_file)
-  File.readlines(input_file).map do |line|
+  res = {}
+  File.readlines(input_file).each do |line|
     crop, quantity = line.strip.split('|')
-    [crop.strip, quantity.strip]
-  end.select { |_, q| q.to_f > 0 }.to_h
+    crop = crop.strip
+    quantity = quantity.to_f
+    if quantity > 0
+      res[crop] = res.fetch(crop, 0.0) + quantity
+    end
+  end
+  res
 end
 
 def parse_crop_list(crop_list_file)
