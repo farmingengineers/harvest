@@ -38,7 +38,7 @@ def format_crop(crop, quantity)
     else
       "%0.1f" % quantity
     end
-  when "bouquets", "bulbs", "bunches", "clamshell", "count", "lettuce heads", "pint", "pt"
+  when "bouquets", "bulbs", "bunches", "clamshell", "count", "each", "lettuce heads", "pint", "pt"
     "%d" % quantity.to_i
   else
     raise "Unknown unit in #{crop.inspect}"
