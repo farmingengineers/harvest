@@ -11,14 +11,30 @@ require 'optparse'
 def parse_input_file(input_file)
   res = {}
   File.readlines(input_file).each do |line|
-    crop, quantity = line.strip.split('|')
-    crop = crop.strip
-    quantity = quantity.to_f
-    if quantity > 0
-      res[crop] = res.fetch(crop, 0.0) + quantity
+    begin
+      crop, quantity = line.strip.split('|')
+      crop = crop.strip
+      quantity = parse_quantity(quantity)
+      if quantity > 0
+        res[crop] = res.fetch(crop, 0.0) + quantity
+      end
+    rescue => e
+      raise "Error parsing #{line.strip.inspect}: #{e.message}"
     end
   end
   res
+end
+
+def parse_quantity(str)
+  str.split("+").map { |x| parse_f_strict(x) }.sum
+end
+
+def parse_f_strict(str)
+  if str =~ /\A\s*(\d*\.?\d*)\s*\z/
+    $1.to_f
+  else
+    raise "Invalid quantity: #{str.inspect}"
+  end
 end
 
 def parse_crop_list(crop_list_file)
