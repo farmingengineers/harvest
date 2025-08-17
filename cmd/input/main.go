@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"strings"
 
@@ -183,6 +185,11 @@ func main() {
 
 	if *outFile == "" {
 		fmt.Println("Error: --out flag is required")
+		os.Exit(1)
+	}
+
+	if _, err := os.Stat(*outFile); !errors.Is(err, fs.ErrNotExist) {
+		fmt.Printf("Error: %q already exists\n", *outFile)
 		os.Exit(1)
 	}
 
