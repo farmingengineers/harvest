@@ -48,13 +48,15 @@ def format_crop(crop, quantity)
   return "" if quantity.nil?
   unit = crop.split(",").last.strip
   case unit
+  # Add units to this list if the quantity can be fractional.
   when "lb"
     if (quantity - quantity.to_i) < 0.1
       "%d" % quantity.to_i
     else
       "%0.1f" % quantity
     end
-  when "bouquets", "bulbs", "bunches", "clamshell", "count", "each", "lettuce heads", "pint", "pt"
+  # Add units to this list if the quantity is always an integer.
+  when "bags", "bouquets", "bulbs", "bunches", "clamshell", "count", "each", "lettuce heads", "pint", "pt"
     "%d" % quantity.to_i
   else
     raise "Unknown unit in #{crop.inspect}"
