@@ -8,6 +8,28 @@
 
 require 'optparse'
 
+def main(input:, crop_list:)
+  input_data = parse_input_file(input)
+  crop_list_data = parse_crop_list(crop_list)
+
+  # Check for unmatched crops
+  unmatched_crops = input_data.keys - crop_list_data
+  if unmatched_crops.any?
+    # Output A: List of crops to add
+    $stderr.puts "** These crops aren't in the harvest sheet.",
+      "** Add rows for them, then copy the first column to #{crop_list},",
+      "** then re-run this program.",
+      "",
+      unmatched_crops.map { |crop| "  #{crop}" }
+    exit 1
+  else
+    # Output B: Values aligned with crop list
+    crop_list_data.each do |crop|
+      puts format_crop(crop, input_data[crop])
+    end
+  end
+end
+
 def parse_input_file(input_file)
   res = {}
   File.readlines(input_file).each do |line|
@@ -26,7 +48,11 @@ def parse_input_file(input_file)
 end
 
 def parse_quantity(str)
-  str.split("+").map { |x| parse_f_strict(x) }.sum
+  str.split("*").map { |m|
+    m.split("+").map { |x|
+      parse_f_strict(x)
+    }.sum
+  }.inject { |a, b| a * b }
 end
 
 def parse_f_strict(str)
@@ -39,7 +65,15 @@ end
 
 def parse_crop_list(crop_list_file)
   crops = File.readlines(crop_list_file).map(&:strip)
-  # the harvest sheet has two header rows.
+  case
+  when crops.empty?
+    raise "#{crop_list_file}: error, this file must include all of the values from the first column of the harvest spreadsheet"
+  when crops[0] != "Week number:"
+    raise "#{crop_list_file}: error, this file must include all of the values from the first column of the harvest spreadsheet"
+  when crops[1] != "Week ending on:"
+    raise "#{crop_list_file}: error, this file must include all of the values from the first column of the harvest spreadsheet"
+  end
+  # drop the two header rows
   crops.shift; crops.shift
   crops
 end
@@ -56,31 +90,12 @@ def format_crop(crop, quantity)
       "%0.1f" % quantity
     end
   # Add units to this list if the quantity is always an integer.
-  when "bags", "bouquets", "bulbs", "bunches", "clamshell", "count", "each", "lettuce heads", "pint", "pt"
+  when "bag", "bags", "bouquets", "bulbs", "bunches",
+       "clamshell", "count", "ea", "each", "heads", "lettuce heads",
+       "pint", "pt", "stems", "tops"
     "%d" % quantity.to_i
   else
     raise "Unknown unit in #{crop.inspect}"
-  end
-end
-
-def main(input:, crop_list:)
-  input_data = parse_input_file(input)
-  crop_list_data = parse_crop_list(crop_list)
-
-  # Check for unmatched crops
-  unmatched_crops = input_data.keys - crop_list_data
-  if unmatched_crops.any?
-    # Output A: List of crops to add
-    $stderr.puts "** These crops aren't in the harvest sheet.",
-      "** Add rows for them, then copy the first column to #{crop_list},",
-      "** then re-run this program.",
-      "",
-      unmatched_crops.map { |crop| "  #{crop}" }
-  else
-    # Output B: Values aligned with crop list
-    crop_list_data.each do |crop|
-      puts format_crop(crop, input_data[crop])
-    end
   end
 end
 
@@ -96,10 +111,6 @@ if ARGV.size != 1
   puts "Error: Expected exactly one input file"
   exit 1
 end
+options[:input] = ARGV[0]
 
-if options[:crop_list].nil?
-  puts "Error: --crops option is required"
-  exit 1
-end
-
-main(input: ARGV[0], crop_list: options[:crop_list])
+main(**options)
