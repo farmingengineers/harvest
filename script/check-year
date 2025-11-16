@@ -1,0 +1,16 @@
+#!/bin/bash
+#/ Usage: script/check-year YYYY
+
+set -e
+set -o nounset
+
+y=$1
+
+for f in $y/week*; do
+  if script/process --crops $y/crops.txt $f >/dev/null; then
+    : # ok
+  else
+    echo "$f: error, see above"
+    exit 1
+  fi
+done
