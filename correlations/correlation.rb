@@ -10,12 +10,15 @@ crop1, crop2 = ARGV
 x = []
 y = []
 Dir["harvest/*.csv"].sort.each do |f|
-  c1 = nil
-  c2 = nil
+  c1s = []
+  c2s = []
   CSV.new(File.open(f)).each do |r|
-    c1 = r if r.first == crop1
-    c2 = r if r.first == crop2
+    next if r.first.nil?
+    c1s << r.map(&:to_f) if r.first.start_with?(crop1)
+    c2s << r.map(&:to_f) if r.first.start_with?(crop2)
   end
+  c1 = c1s.reduce { |a, b| a.zip(b).map(&:sum) }
+  c2 = c2s.reduce { |a, b| a.zip(b).map(&:sum) }
   if c1 && c2 && c1.size == c2.size
     x += c1.map(&:to_f)
     y += c2.map(&:to_f)
