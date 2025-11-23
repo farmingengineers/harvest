@@ -28,49 +28,21 @@ keep = idx - skips
 x = keep.map { |i| x[i] }
 y = keep.map { |i| y[i] }
 
-class Stats
-  def initialize(data)
-    @data = data
-  end
+idx = (0..x.size-1).to_a
+mean_x = x.sum.to_f / x.size
+mean_y = y.sum.to_f / y.size
 
-  attr_reader :data
+dx = x.map { |v| v - mean_x }
+dy = y.map { |v| v - mean_y }
+rxy = (dx.zip(dy).sum { |v1, v2| v1 * v2 }) /
+  (
+    Math.sqrt(dx.sum { |v| v * v }) *
+    Math.sqrt(dy.sum { |v| v * v })
+  )
 
-  def stddev
-    Math.sqrt(variance)
-  end
+printf "%-20s  range %6.2f .. %6.2f  mean = %6.2f\n",
+  crop1, x.min, x.max, mean_x
+printf "%-20s  range %6.2f .. %6.2f  mean = %6.2f\n",
+  crop2, y.min, y.max, mean_y
 
-  def variance
-    @data.sum { |x| (x - mean) * (x - mean) }
-  end
-
-  def mean
-    @mean ||= @data.sum.to_f / @data.size
-  end
-
-  def max
-    @max ||= @data.max
-  end
-
-  def min
-    @min ||= @data.min
-  end
-end
-
-def covariance(sx, sy)
-  if sx.data.size != sy.data.size
-    raise "Number of data points for crop 1 (#{sx.data.size}) must be the same as the number for crop 2 (#{sy.data.size})."
-  end
-  sx.data.size.times.sum { |i| (sx.data[i] - sx.mean) * (sy.data[i] - sy.mean) }
-end
-
-sx = Stats.new(x)
-sy = Stats.new(y)
-
-printf "%-20s  range = %6.2f-%6.2f  mean = %6.2f  stddev = %6.2f\n",
-  crop1, sx.min, sx.max, sx.mean, sx.stddev
-printf "%-20s  range = %6.2f-%6.2f  mean = %6.2f  stddev = %6.2f\n",
-  crop2, sy.min, sy.max, sy.mean, sy.stddev
-
-correlation = covariance(sx, sy) / (sx.stddev * sy.stddev)
-printf "correlation = %5.3f\n",
-  correlation
+printf "correlation = %5.3f\n", rxy
