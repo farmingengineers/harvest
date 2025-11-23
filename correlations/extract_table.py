@@ -59,16 +59,19 @@ def extract_table_to_csv(numbers_file, output_csv):
     doc = Document(numbers_file)
     
     if len(doc.sheets) == 0:
-        raise ValueError("Document has no sheets")
+        raise ValueError("Document has no sheets.")
     
+    print(f"Found {len(doc.sheets)} sheets.")
     sheet = doc.sheets[0]
     
+    print(f"Using sheet '{sheet.name}'.")
     if len(sheet.tables) == 0:
         raise ValueError("Sheet has no tables")
     
+    print(f"Found {len(sheet.tables)} tables.")
     table = sheet.tables[0]
     
-    print(f"Found table with {len(table.rows())} rows and {len(table.columns())} columns")
+    print(f"Using table '{table.name}', with {len(table.rows())} rows.")
     
     # Perform sanity checks
     print("\nPerforming sanity checks...")
@@ -136,11 +139,7 @@ def main():
     else:
         output_path = numbers_path.with_suffix('.csv')
     
-    try:
-        extract_table_to_csv(str(numbers_path), str(output_path))
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    extract_table_to_csv(str(numbers_path), str(output_path))
 
 
 if __name__ == "__main__":
