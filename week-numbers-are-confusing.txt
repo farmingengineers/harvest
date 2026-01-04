@@ -1,0 +1,42 @@
+$ for y in $(seq 2010 2026); do date -j +%+//%U//%V 12310101$y; done
+Fri Dec 31 01:01:00 EST 2010//52//52
+Sat Dec 31 01:01:00 EST 2011//52//52
+Mon Dec 31 01:01:00 EST 2012//53//01
+Tue Dec 31 01:01:00 EST 2013//52//01
+Wed Dec 31 01:01:00 EST 2014//52//01
+Thu Dec 31 01:01:00 EST 2015//52//53
+Sat Dec 31 01:01:00 EST 2016//52//52
+Sun Dec 31 01:01:00 EST 2017//53//52
+Mon Dec 31 01:01:00 EST 2018//52//01
+Tue Dec 31 01:01:00 EST 2019//52//01
+Thu Dec 31 01:01:00 EST 2020//52//53
+Fri Dec 31 01:01:00 EST 2021//52//52
+Sat Dec 31 01:01:00 EST 2022//52//52
+Sun Dec 31 01:01:00 EST 2023//53//52
+Tue Dec 31 01:01:00 EST 2024//52//01
+Wed Dec 31 01:01:00 EST 2025//52//01
+Thu Dec 31 01:01:00 EST 2026//52//53
+
+$ for y in $(seq 2010 2026); do date -j +%+//%U//%V 01010101$y; done
+Fri Jan  1 01:01:00 EST 2010//00//53
+Sat Jan  1 01:01:00 EST 2011//00//52
+Sun Jan  1 01:01:00 EST 2012//01//52
+Tue Jan  1 01:01:00 EST 2013//00//01
+Wed Jan  1 01:01:00 EST 2014//00//01
+Thu Jan  1 01:01:00 EST 2015//00//01
+Fri Jan  1 01:01:00 EST 2016//00//53
+Sun Jan  1 01:01:00 EST 2017//01//52
+Mon Jan  1 01:01:00 EST 2018//00//01
+Tue Jan  1 01:01:00 EST 2019//00//01
+Wed Jan  1 01:01:00 EST 2020//00//01
+Fri Jan  1 01:01:00 EST 2021//00//53
+Sat Jan  1 01:01:00 EST 2022//00//52
+Sun Jan  1 01:01:00 EST 2023//01//52
+Mon Jan  1 01:01:00 EST 2024//00//01
+Wed Jan  1 01:01:00 EST 2025//00//01
+Thu Jan  1 01:01:00 EST 2026//00//01
+
+%V is ISO week number.
+https://en.wikipedia.org/wiki/ISO_week_date
+
+I'm not sure if there's a way to get 'date' to tell you the ISO week's year.
